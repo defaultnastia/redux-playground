@@ -91,6 +91,10 @@ nav .active {
   align-items: center;
 }
 
+.isSelected {
+  background-color: #659505d4;
+}
+
 form {
   display: flex;
   gap: 12px;
