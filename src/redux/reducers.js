@@ -1,4 +1,10 @@
-import { combineReducers } from "redux";
+import { createReducer } from "@reduxjs/toolkit";
+import {
+  addTask,
+  deleteTask,
+  setStatusFilter,
+  toggleCompleted,
+} from "./actions";
 import { statusFilters } from "./constants";
 
 const tasksInitialState = [
@@ -9,42 +15,30 @@ const tasksInitialState = [
   { id: 4, text: "Build amazing apps", completed: false },
 ];
 
-const tasksReducer = (state = tasksInitialState, action) => {
-  switch (action.type) {
-    case "tasks/addTask":
-      return [...state, action.payload];
-    case "tasks/deleteTask":
-      return state.filter((task) => task.id !== action.payload);
-    case "tasks/toggleCompleted":
-      return state.map((task) => {
-        if (task.id !== action.payload) {
-          return task;
+export const tasksReducer = createReducer(tasksInitialState, (builder) => {
+  builder
+    .addCase(addTask, (state, action) => {
+      state.push(action.payload);
+    })
+    .addCase(deleteTask, (state, action) => {
+      const index = state.findIndex((task) => task.id === action.payload);
+      state.splice(index, 1);
+    })
+    .addCase(toggleCompleted, (state, action) => {
+      for (const task of state) {
+        if (task.id === action.payload) {
+          task.completed = !task.completed;
         }
-        return { ...task, completed: !task.completed };
-      });
-
-    default:
-      return state;
-  }
-};
+      }
+    });
+});
 
 const filtersInitialState = {
   status: statusFilters.all,
 };
 
-const filtersReducer = (state = filtersInitialState, action) => {
-  switch (action.type) {
-    case "filters/setStatusFilter":
-      return {
-        ...state,
-        status: action.payload,
-      };
-    default:
-      return state;
-  }
-};
-
-export const rootReducer = combineReducers({
-  tasks: tasksReducer,
-  filters: filtersReducer,
+export const filtersReducer = createReducer(filtersInitialState, (builder) => {
+  builder.addCase(setStatusFilter, (state, action) => {
+    state.status = action.payload;
+  });
 });
